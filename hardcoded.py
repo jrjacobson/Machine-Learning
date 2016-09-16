@@ -7,33 +7,34 @@ iris = datasets.load_iris()
 # shuffle the data using a random number
 iris.data, iris.target = shuffle(iris.data, iris.target, random_state=int(random.random() * 100))
 
-trainingData = iris.data[0:125]
-trainingTarget = iris.target[0:125]
-testData = iris.data[125:150]
-testTarget = iris.target[125:150]
+trainingData = iris.data[:125]
+trainingTarget = iris.target[:125]
+testData = iris.data[125:]
+testTarget = iris.target[125:]
 
 
 # Train the machine
 def train(data, target):
-    print ('Training the machine...')
+    print('Training the machine...')
     return
 
 
 # Predict the outcome of the test data
 def predict(data):
-    print ('Making predictions...')
-    prediction = [1] * len(data)
+    print('Making predictions...')
+    prediction = []
 
     # This is hard coded for now will need to predict latter
     for x in range(len(data)):
-        prediction[x] = 1
+        # This will be where the prediction function will get called
+        prediction.append(1)
 
     return prediction
 
 
 # Check to see what percentage was correct
 def test(target, prediction):
-    print ('Calculating the proficiency of the prediction made...')
+    print('Calculating the proficiency of the prediction made...')
     right = 0
     for x in range(len(target)):
         if target[x] == prediction[x]:
