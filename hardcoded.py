@@ -7,10 +7,10 @@ iris = datasets.load_iris()
 # shuffle the data using a random number
 iris.data, iris.target = shuffle(iris.data, iris.target, random_state=int(random.random() * 100))
 
-trainingData = iris.data[:125]
-trainingTarget = iris.target[:125]
-testData = iris.data[125:]
-testTarget = iris.target[125:]
+trainingData = iris.data[:100]
+trainingTarget = iris.target[:100]
+testData = iris.data[100:]
+testTarget = iris.target[100:]
 
 
 # Train the machine
