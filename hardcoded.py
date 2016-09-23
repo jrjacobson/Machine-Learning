@@ -1,18 +1,18 @@
-from sklearn import datasets
+import menu
 from sklearn.utils import shuffle
-import pandas as pd
 import random
 import sys
 
-def loadData(dataType):
-    # shuffle the data using a random number
-    iris.data, iris.target = shuffle(iris.data, iris.target, random_state=int(random.random() * 100))
-    trainingData = iris.data[:100]
-    trainingTarget = iris.target[:100]
-    testData = iris.data[100:]
-    testTarget = iris.target[100:]
 
-    return (trainingData, trainingTarget, testData, testTarget)
+def loadData(data):
+    # shuffle the data using a random number
+    data.data, data.target = shuffle(data.data, data.target, random_state=int(random.random() * 100))
+    trainingData = data.data[:100]
+    trainingTarget = data.target[:100]
+    testData = data.data[100:]
+    testTarget = data.target[100:]
+
+    return trainingData, trainingTarget, testData, testTarget
 
 
 def runData(dataType):
@@ -90,18 +90,9 @@ def add_flower():
 
 def main(argv):
     # setting up running iris data
-    runData(iris)
-    # setting up and running breast cancer data
-    runData(cancer)
+    runData(menu.iris)
     # let user give an iris to guess
     add_flower()
-
-# load data
-iris = datasets.load_iris()
-car = pd.io.parsers.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data',
-                             header=None,
-                             usecols=[0, 1, 2, 3])
-cancer = datasets.load_breast_cancer()
 
 
 if __name__ == "__main__":

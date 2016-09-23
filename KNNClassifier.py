@@ -1,8 +1,10 @@
 import hardcoded
+import menu
 import sys
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 from collections import Counter
+
 
 rememberedData = []
 rememberedTarget = []
@@ -16,10 +18,11 @@ def runData(dataType):
     std_scale = preprocessing.StandardScaler().fit(trainingData)
     trainingData = std_scale.transform(trainingData)
     testData = std_scale.transform(testData)
+
     train(trainingData, trainingTarget)
     predictions = predict(testData)
-    percent = hardcoded.test(testTarget, predictions)
-    print("The prediction accuracy of my algorithm was %i%%" % percent)
+    percent1 = hardcoded.test(testTarget, predictions)
+    print("The prediction accuracy of my algorithm was %i%%" % percent1)
 
     # sklearn implementation
     classifier = KNeighborsClassifier(n_neighbors)
@@ -27,6 +30,8 @@ def runData(dataType):
     predictions = classifier.predict(testData)
     percent = hardcoded.test(testTarget, predictions)
     print("The prediction accuracy of the sklearn algorithm was %i%%" % percent)
+
+    return percent1, percent
 
 
 def train(data, target):
@@ -43,12 +48,9 @@ def predict(data):
         predictions.append(findKNN(data[item]))
     return predictions
 
-
+# find kNN
 def findKNN(data):
-    # find kNN
-    x = 0
     dist = []
-
     for remItem in range(len(rememberedData)):
         dist.append([(data[0] - rememberedData[remItem][0]) ** 2 +
                      (data[1] - rememberedData[remItem][1]) ** 2 +
@@ -67,11 +69,11 @@ def findKNN(data):
 
 def main(argv):
     print("\nTesting Iris...")
-    runData(hardcoded.iris)
+    runData(menu.iris)
     print("\nTesting Car...")
-    runData(hardcoded.car)
+    #runData(menu.car)
     print("\nTesting Breast Cancer...")
-    runData(hardcoded.cancer)
+    runData(menu.cancer)
 
 
 if __name__ == "__main__":
