@@ -1,16 +1,26 @@
 from sklearn import datasets
 from sklearn.utils import shuffle
+import pandas as pd
 import random
+import sys
 
-# import iris data from sklearn for testing
-iris = datasets.load_iris()
-# shuffle the data using a random number
-iris.data, iris.target = shuffle(iris.data, iris.target, random_state=int(random.random() * 100))
+def loadData(dataType):
+    # shuffle the data using a random number
+    iris.data, iris.target = shuffle(iris.data, iris.target, random_state=int(random.random() * 100))
+    trainingData = iris.data[:100]
+    trainingTarget = iris.target[:100]
+    testData = iris.data[100:]
+    testTarget = iris.target[100:]
 
-trainingData = iris.data[:100]
-trainingTarget = iris.target[:100]
-testData = iris.data[100:]
-testTarget = iris.target[100:]
+    return (trainingData, trainingTarget, testData, testTarget)
+
+
+def runData(dataType):
+    trainingData, trainingTarget, testData, testTarget = loadData(dataType)
+    train(trainingData, trainingTarget)
+    prediction = predict(testData)
+    percent = test(testTarget, prediction)
+    print("The prediction accuracy of this test was %i%%" % percent)
 
 
 # Train the machine
@@ -78,9 +88,21 @@ def add_flower():
         return
 
 
-train(trainingData, trainingTarget)
-prediction = predict(testData)
-percent = test(testTarget, prediction)
+def main(argv):
+    # setting up running iris data
+    runData(iris)
+    # setting up and running breast cancer data
+    runData(cancer)
+    # let user give an iris to guess
+    add_flower()
 
-print("The prediction accuracy of this test was %i%%" % percent)
-add_flower()
+# load data
+iris = datasets.load_iris()
+car = pd.io.parsers.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data',
+                             header=None,
+                             usecols=[0, 1, 2, 3])
+cancer = datasets.load_breast_cancer()
+
+
+if __name__ == "__main__":
+    main(sys.argv)
