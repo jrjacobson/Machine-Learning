@@ -1,25 +1,12 @@
 import menu
-from sklearn.utils import shuffle
-import random
 import sys
 
 
-def loadData(data):
-    # shuffle the data using a random number
-    data.data, data.target = shuffle(data.data, data.target, random_state=int(random.random() * 100))
-    trainingData = data.data[:100]
-    trainingTarget = data.target[:100]
-    testData = data.data[100:]
-    testTarget = data.target[100:]
-
-    return trainingData, trainingTarget, testData, testTarget
-
-
-def runData(dataType):
-    trainingData, trainingTarget, testData, testTarget = loadData(dataType)
+def runData(data, target):
+    trainingData, trainingTarget, testData, testTarget = menu.loadData(data, target)
     train(trainingData, trainingTarget)
     prediction = predict(testData)
-    percent = test(testTarget, prediction)
+    percent = menu.test(testTarget, prediction)
     print("The prediction accuracy of this test was %i%%" % percent)
 
 
@@ -33,26 +20,11 @@ def train(data, target):
 def predict(data):
     print('Making predictions...')
     prediction = []
-
     # This is hard coded for now will need to predict latter
     for x in range(len(data)):
         # This will be where the prediction function will get called
         prediction.append(1)
-
     return prediction
-
-
-# Check to see what percentage was correct
-def test(target, prediction):
-    print('Calculating the proficiency of the prediction made...')
-    right = 0
-    for x in range(len(target)):
-        if target[x] == prediction[x]:
-            right += 1
-
-    percent = right / float(len(target)) * 100
-
-    return percent
 
 
 # Prompts to add a flower then predicts what type of flower it was
@@ -71,7 +43,7 @@ def add_flower():
         target.append(int(input('Okay I have my guess ready what type of flower do you have?'
                                 ' Enter 1 for a Setosa, 2 for a Versicolor, or 3 for a Virginica: ')))
         if target == 1 or 2 or 3:
-            result = test(target, guess)
+            result = menu.test(target, guess)
             if result == 100:
                 print('I got it')
             else:
@@ -90,7 +62,7 @@ def add_flower():
 
 def main(argv):
     # setting up running iris data
-    runData(menu.iris)
+    runData(menu.iris.data, menu.iris.target)
     # let user give an iris to guess
     add_flower()
 
