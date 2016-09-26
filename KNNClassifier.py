@@ -50,7 +50,7 @@ def carStringToNum(data):
                 features.append(1.0)
             elif (car_matrix[row][col] == 'high' and col != 5) or (car_matrix[row][col] == '2' and col != 3) or \
                             car_matrix[row][col] == '5more':
-                features.append(1.0)
+                features.append(2.0)
             elif car_matrix[row][col] == '3' or car_matrix[row][col] == 'med' or car_matrix[row][col] == 'acc':
                 features.append(4.0)
             elif car_matrix[row][col] == '4' or car_matrix[row][col] == 'good':
