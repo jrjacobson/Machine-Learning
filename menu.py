@@ -36,7 +36,7 @@ def main(argv):
 
 # load data
 iris = datasets.load_iris()
-car_pd = pd.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data',
+car_pd = pd.read_csv('car.csv',
                      header=None, usecols=[0, 1, 2, 3, 4, 5, 6])
 cancer = datasets.load_breast_cancer()
 
