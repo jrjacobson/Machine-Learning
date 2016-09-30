@@ -45,18 +45,63 @@ def carStringToNum(data):
         features = []
         # selecting a number to use for weight of each string
         for col in range(7):
-            if car_matrix[row][col] == 'vhigh' or (car_matrix[row][col] == 'low' and col != 0 and col != 1) or \
-                            car_matrix[row][col] == 'small' or car_matrix[row][col] == 'unacc':
-                features.append(1.0)
-            elif (car_matrix[row][col] == 'high' and col != 5) or (car_matrix[row][col] == '2' and col != 3) or \
-                            car_matrix[row][col] == '5more':
-                features.append(2.0)
-            elif car_matrix[row][col] == '3' or car_matrix[row][col] == 'med' or car_matrix[row][col] == 'acc':
-                features.append(4.0)
-            elif car_matrix[row][col] == '4' or car_matrix[row][col] == 'good':
-                features.append(5.0)
-            else:
-                features.append(9.0)
+            if col == 0:
+                if car_matrix[row][col] == 'vhigh':
+                    features.append(1.0)
+                elif car_matrix[row][col] == 'high':
+                    features.append(2.0)
+                elif car_matrix[row][col] == 'med':
+                    features.append(3.0)
+                else:
+                    features.append(4.0)
+            if col == 1:
+                if car_matrix[row][col] == 'vhigh':
+                    features.append(5.0)
+                elif car_matrix[row][col] == 'high':
+                    features.append(6.0)
+                elif car_matrix[row][col] == 'med':
+                    features.append(7.0)
+                else:
+                    features.append(8.0)
+            if col == 2:
+                if car_matrix[row][col] == '2':
+                    features.append(9.0)
+                elif car_matrix[row][col] == '3':
+                    features.append(10.0)
+                elif car_matrix[row][col] == '4':
+                    features.append(11.0)
+                else:
+                    features.append(12.0)
+            if col == 3:
+                if car_matrix[row][col] == '2':
+                    features.append(13.0)
+                elif car_matrix[row][col] == '4':
+                    features.append(14.0)
+                else:
+                    features.append(15.0)
+            if col == 4:
+                if car_matrix[row][col] == 'small':
+                    features.append(16.0)
+                elif car_matrix[row][col] == 'med':
+                    features.append(17.0)
+                else:
+                    features.append(18.0)
+            if col == 5:
+                if car_matrix[row][col] == 'low':
+                    features.append(19.0)
+                elif car_matrix[row][col] == 'med':
+                    features.append(20.0)
+                else:
+                    features.append(21.0)
+            if col == 6:
+                if car_matrix[row][col] == 'unacc':
+                    features.append(22.0)
+                elif car_matrix[row][col] == 'acc':
+                    features.append(23.0)
+                elif car_matrix[row][col] == 'good':
+                    features.append(24.0)
+                else:
+                    features.append(25.0)
 
         cardata.append(features[:6])
         num = features[6]
