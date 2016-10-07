@@ -118,12 +118,12 @@ class TreeClassifier:
                         newTargets.append(target[index])
                     index += 1
 
-                    # Now recurse to the next level
-                    subtree = self.make_tree(newData, newTargets, newColumns)
+                # Now recurse to the next level
+                subtree = self.make_tree(newData, newTargets, newColumns)
 
-                    # And on returning, add the subtree on to the tree
-                    tree[column[bestFeature]][value] = subtree
-                return tree
+                # And on returning, add the subtree on to the tree
+                tree[column[bestFeature]][value] = subtree
+            return tree
 
     def printTree(self, tree, name):
         if type(tree) == dict:
