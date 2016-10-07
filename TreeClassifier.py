@@ -6,6 +6,7 @@ import numpy as np
 class TreeClassifier:
     def __init__(self):
         """ Constructor """
+    cols = 0
 
     def calc_entropy(self, p):
         if p != 0:
@@ -47,13 +48,14 @@ class TreeClassifier:
                 classIndex += 1
             for classIndex in range(len(classValues)):
                 entropy[valueIndex] += self.calc_entropy(float(classCounts[classIndex]) / sum(classCounts))
-            gain += float(featureCounts[valueIndex])/nData * entropy[valueIndex]
+            gain += float(featureCounts[valueIndex]) / nData * entropy[valueIndex]
             valueIndex += 1
         return gain
 
     def make_tree(self, data, target, column):
         amtOfData = len(data)
         numOfFeatures = len(data[0])
+        self.cols = column
 
         # from the text not sure what exactly this is for... ?
         try:
@@ -125,14 +127,37 @@ class TreeClassifier:
                 tree[column[bestFeature]][value] = subtree
             return tree
 
-    def printTree(self, tree, name):
+    def printTree(self, tree, space):
         if type(tree) == dict:
-            print(name, list(tree.keys())[0])
+            print(space, list(tree.keys())[0])
             for item in list(tree.values())[0].keys():
-                print(name, item)
-                self.printTree(list(tree.values())[0][item], name + "\t")
+                print(space, item)
+                self.printTree(list(tree.values())[0][item], space + "\t")
         else:
-            print(name, "\t->\t", tree)
+            print(space, "\t->\t", tree)
+
+    def predictOneRow(self, data, tree):
+
+        if type(tree) == dict:
+
+
+        else:
+            return tree
+    def makePredictions(self, data, tree):
+        predictions = []
+        for row in range(len(data)):
+            # send a row down the tree append the prediction to the prediction list
+            predictions.append(self.predictOneRow(data[row], tree))
+        return predictions
+
+    def test(self, target, prediction):
+        print('Calculating the proficiency of the prediction made...')
+        right = 0
+        for x in range(len(target)):
+            if target[x] == prediction[x]:
+                right += 1
+        percent = right / float(len(target)) * 100
+        return percent
 
 
 def preProVotes(dataset):
@@ -154,8 +179,14 @@ def main(argsv):
     vote = menu.votes
     trainingData, trainingTarget, testData, testTarget, cols = preProVotes(vote)
 
-    voteTree = tree.make_tree(trainingData, trainingTarget, cols)
-    tree.printTree(voteTree, ' ')
+    vote_tree = tree.make_tree(trainingData, trainingTarget, cols)
+    #tree.printTree(vote_tree, ' ')
+    vote_predictions = tree.makePredictions(testData, vote_tree)
+    print(vote_predictions)
+    print(testTarget)
+    percent = tree.test(testTarget, vote_predictions)
+
+    print('You got %i%%' % percent)
 
 if __name__ == '__main__':
     main(sys.argv)
