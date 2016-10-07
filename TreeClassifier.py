@@ -136,18 +136,23 @@ class TreeClassifier:
         else:
             print(space, "\t->\t", tree)
 
-    def predictOneRow(self, data, tree):
+    def predictOneRow(self, data, tree, cols):
 
         if type(tree) == dict:
-
-
+            root = list(tree.keys())[0]
+            for col in range(len(cols)):
+                if cols[col] == root:
+                    break
+                subTree = tree[root][data[col]]
+                return self.predictOneRow(data, subTree, cols)
         else:
             return tree
-    def makePredictions(self, data, tree):
+
+    def makePredictions(self, data, tree, cols):
         predictions = []
         for row in range(len(data)):
             # send a row down the tree append the prediction to the prediction list
-            predictions.append(self.predictOneRow(data[row], tree))
+            predictions.append(self.predictOneRow(data[row], tree, cols))
         return predictions
 
     def test(self, target, prediction):
@@ -181,7 +186,7 @@ def main(argsv):
 
     vote_tree = tree.make_tree(trainingData, trainingTarget, cols)
     #tree.printTree(vote_tree, ' ')
-    vote_predictions = tree.makePredictions(testData, vote_tree)
+    vote_predictions = tree.makePredictions(testData, vote_tree, cols)
     print(vote_predictions)
     print(testTarget)
     percent = tree.test(testTarget, vote_predictions)

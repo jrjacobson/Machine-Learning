@@ -1,5 +1,5 @@
-import hardcoded
-import KNNClassifier
+#import hardcoded
+#import KNNClassifier
 import TreeClassifier
 import sys
 from sklearn import datasets
