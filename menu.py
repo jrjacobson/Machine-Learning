@@ -1,5 +1,5 @@
-#import hardcoded
-#import KNNClassifier
+import hardcoded
+import KNNClassifier
 import TreeClassifier
 import sys
 from sklearn import datasets
@@ -40,9 +40,9 @@ def test(target, prediction):
 
 def main(argv):
     print("\nPonder 01: Running hardcoded classifier")
-    #hardcoded.main(argv)
-    #print("\nPonder 02: Running KNN classifier")
-    #KNNClassifier.main(argv)
+    hardcoded.main(argv)
+    print("\nPonder 02: Running KNN classifier")
+    KNNClassifier.main(argv)
     TreeClassifier.main(argv)
 
 # load data
@@ -50,8 +50,8 @@ iris = datasets.load_iris()
 car_pd = pd.read_csv('car.csv',
                      header=None, usecols=[0, 1, 2, 3, 4, 5, 6])
 cancer = datasets.load_breast_cancer()
-filename = "votes.csv"
-votes = loadcsv(filename)
+votes = loadcsv('votes.csv')
+lenses = loadcsv('lenses.csv')
 
 if __name__ == '__main__':
     main(sys.argv)

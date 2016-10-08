@@ -6,7 +6,6 @@ import numpy as np
 class TreeClassifier:
     def __init__(self):
         """ Constructor """
-    cols = 0
 
     def calc_entropy(self, p):
         if p != 0:
@@ -53,11 +52,11 @@ class TreeClassifier:
         return gain
 
     def make_tree(self, data, target, column):
+        """Builds a tree given the data set targets and column names"""
+        global newColumns, feature
         amtOfData = len(data)
         numOfFeatures = len(data[0])
-        self.cols = column
 
-        # from the text not sure what exactly this is for... ?
         try:
             self.column
         except:
@@ -128,6 +127,7 @@ class TreeClassifier:
             return tree
 
     def printTree(self, tree, space):
+        """Takes a tree and space to print a tree"""
         if type(tree) == dict:
             print(space, list(tree.keys())[0])
             for item in list(tree.values())[0].keys():
@@ -137,32 +137,29 @@ class TreeClassifier:
             print(space, "\t->\t", tree)
 
     def predictOneRow(self, data, tree, cols):
-
+        """This will predict the target of a row"""
+        col = 0
         if type(tree) == dict:
             root = list(tree.keys())[0]
             for col in range(len(cols)):
                 if cols[col] == root:
                     break
-                subTree = tree[root][data[col]]
+            if data[col] in tree[root]:
+                subTree = tree[root][data[col]] #sometimes the key is not there and I get a KeyError
+                return self.predictOneRow(data, subTree, cols)
+            else:
+                subTree = tree[root]
                 return self.predictOneRow(data, subTree, cols)
         else:
             return tree
 
     def makePredictions(self, data, tree, cols):
+        """This takes a test data and passes it by row to the predict row accumulating a list of predictions"""
         predictions = []
         for row in range(len(data)):
             # send a row down the tree append the prediction to the prediction list
             predictions.append(self.predictOneRow(data[row], tree, cols))
         return predictions
-
-    def test(self, target, prediction):
-        print('Calculating the proficiency of the prediction made...')
-        right = 0
-        for x in range(len(target)):
-            if target[x] == prediction[x]:
-                right += 1
-        percent = right / float(len(target)) * 100
-        return percent
 
 
 def preProVotes(dataset):
@@ -178,20 +175,47 @@ def preProVotes(dataset):
     return trainingData, trainingTarget, testData, testTarget, cols
 
 
-def main(argsv):
-    tree = TreeClassifier()
+def preProLenses(dataset):
+    data = []
+    target = []
+    for row in range(len(dataset)):
+        dataset[row] = dataset[row][0].split()
+        data.append(dataset[row][1:5])
+        if dataset[row][5] == '1':
+            dataset[row][5] = 'one'
+        elif dataset[row][5] == '2':
+            dataset[row][5] = 'two'
+        else:
+            dataset[row][5] = 'three'
+        target.append(dataset[row][5])
+    trainingData, trainingTarget, testData, testTarget = menu.loadData(data, target)
+    cols = []
+    for i in range(len(trainingData[0])):
+        cols.append(i)
+    return trainingData, trainingTarget, testData, testTarget, cols
 
+
+def runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols):
+    """driver program for treeClassifier"""
+    tree = TreeClassifier()
+    this_tree = tree.make_tree(trainingData, trainingTarget, cols)
+    tree.printTree(this_tree, ' ')
+    vote_predictions = tree.makePredictions(testData, this_tree, cols)
+    percent = menu.test(testTarget, vote_predictions)
+    print('You got %i%%' % percent)
+
+
+def main(argsv):
+    """preprocessors data and pass it to driver"""
+    print('\nProcessing Votes...')
     vote = menu.votes
     trainingData, trainingTarget, testData, testTarget, cols = preProVotes(vote)
+    runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols)
+    print('\nProcessing Lenses...')
+    lenses = menu.lenses
+    trainingData, trainingTarget, testData, testTarget, cols = preProLenses(lenses)
+    runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols)
 
-    vote_tree = tree.make_tree(trainingData, trainingTarget, cols)
-    #tree.printTree(vote_tree, ' ')
-    vote_predictions = tree.makePredictions(testData, vote_tree, cols)
-    print(vote_predictions)
-    print(testTarget)
-    percent = tree.test(testTarget, vote_predictions)
-
-    print('You got %i%%' % percent)
 
 if __name__ == '__main__':
     main(sys.argv)
