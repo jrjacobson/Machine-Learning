@@ -144,10 +144,10 @@ class TreeClassifier:
             for col in range(len(cols)):
                 if cols[col] == root:
                     break
-            if data[col] in tree[root]:
+            try:
                 subTree = tree[root][data[col]] #sometimes the key is not there and I get a KeyError
                 return self.predictOneRow(data, subTree, cols)
-            else:
+            except:
                 subTree = tree[root]
                 return self.predictOneRow(data, subTree, cols)
         else:
@@ -172,6 +172,45 @@ def preProVotes(dataset):
     cols = []
     for i in range(len(trainingData[0])):
         cols.append(i)
+    return trainingData, trainingTarget, testData, testTarget, cols
+
+
+def preProIris(dataset):
+    data = []
+    target = []
+    high = ['0', '0', '0', '0']
+    med = ['0', '0', '0', '0']
+    low = ['0', '0', '0', '0']
+
+    for row in range(len(dataset)):
+        target.append(dataset[row][4])
+        data.append(dataset[row][:4])
+
+    for row in range(len(data)):
+        for col in range(len(data[row])):
+            if data[row][col] > high[col]:
+                high[col] = data[row][col]
+            if low[col] == '0' or low[col] > data[row][col]:
+                low[col] = data[row][col]
+    for col in range(len(high)):
+        med[col] = str((float(high[col]) + float(low[col])) / 2)
+        high[col] = str((float(med[col]) + float(high[col])) / 2)
+        low[col] = str((float(med[col]) + float(low[col])) / 2)
+
+    for row in range(len(data)):
+        for col in range(len(data[row])):
+            if data[row][col] <= low[col]:
+                data[row][col] = 1
+            elif data[row][col] >= high[col]:
+                data[row][col] = 3
+            else:
+                data[row][col] = 2
+
+    trainingData, trainingTarget, testData, testTarget = menu.loadData(data, target)
+    cols = []
+    for i in range(len(trainingData[0])):
+        cols.append(i)
+
     return trainingData, trainingTarget, testData, testTarget, cols
 
 
@@ -211,10 +250,17 @@ def main(argsv):
     vote = menu.votes
     trainingData, trainingTarget, testData, testTarget, cols = preProVotes(vote)
     runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols)
+
     print('\nProcessing Lenses...')
     lenses = menu.lenses
     trainingData, trainingTarget, testData, testTarget, cols = preProLenses(lenses)
     runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols)
+
+    print('\nProcessing Irises...')
+    iris = menu.loadcsv('iris.csv')
+    trainingData, trainingTarget, testData, testTarget, cols = preProIris(iris)
+    runTreeClassifier(trainingData, trainingTarget, testData, testTarget, cols)
+
 
 
 if __name__ == '__main__':
