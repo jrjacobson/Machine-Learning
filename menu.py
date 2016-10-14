@@ -7,6 +7,7 @@ from sklearn.utils import shuffle
 import random
 import pandas as pd
 import csv
+from sklearn import preprocessing
 
 
 def loadData(data, target):
@@ -38,11 +39,19 @@ def test(target, prediction):
     return percent
 
 
+def normalize(trainingData, testData):
+    """Scale data"""
+    std_scale = preprocessing.StandardScaler().fit(trainingData)
+    trainingData = std_scale.transform(trainingData)
+    testData = std_scale.transform(testData)
+    return trainingData, testData
+
 def main(argv):
     print("\nPonder 01: Running hardcoded classifier")
     hardcoded.main(argv)
     print("\nPonder 02: Running KNN classifier")
     KNNClassifier.main(argv)
+    print("\nPonder 03: Tree Classifier")
     TreeClassifier.main(argv)
 
 # load data
@@ -52,6 +61,7 @@ car_pd = pd.read_csv('car.csv',
 cancer = datasets.load_breast_cancer()
 votes = loadcsv('votes.csv')
 lenses = loadcsv('lenses.csv')
+diabetes = loadcsv('diabetes.csv')
 
 if __name__ == '__main__':
     main(sys.argv)
