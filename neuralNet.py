@@ -31,10 +31,12 @@ class NeuralNet:
         """Constructor"""
         self.node_layer = []
 
-    def add_node_layer(self, number_of_neurons, number_of_inputs):
+    def add_node_layer(self, number_of_neurons, number_of_inputs=0):
         """Creates a layer of neuron nodes
                 :param number_of_inputs: The number of inputs that will be passed into the network
                 :param number_of_neurons: The number of neurons there will be in the network"""
+        if len(self.node_layer) != 0:
+            number_of_inputs = len(self.node_layer[-1])
         neuron_list = []
         for _ in range(0, number_of_neurons):
             neuron_list.append(Neuron(number_of_inputs))
@@ -42,15 +44,18 @@ class NeuralNet:
 
     def make_predictions(self, data):
         """Makes prediction based on input data passed"""
-        prediction = []
-        for layer in range(len(self.node_layer)):
-            for row in range(len(data)):
-                excited_neurons = []
-                for node in range(len(self.node_layer[layer])):  # Logic will need to be changed here to deal with multiple layers in the neural net
-                    neuron = self.node_layer[layer][node]
-                    excited_neurons.append(neuron.excite_neuron(data[row]))
-                prediction.append(excited_neurons)
-            data = prediction
+        if len(self.node_layer) != 0:
+            for layer in range(len(self.node_layer)):
+                prediction = []
+                for row in range(len(data)):
+                    excited_neurons = []
+                    for node in range(len(self.node_layer[layer])):
+                        neuron = self.node_layer[layer][node]
+                        excited_neurons.append(neuron.excite_neuron(data[row]))
+                    prediction.append(excited_neurons)
+                data = prediction
+        else:
+            prediction = []
         return prediction
 
 
@@ -81,15 +86,24 @@ def main():
     print('Running iris data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_iris()
     brain = NeuralNet()
-    brain.add_node_layer(3, len(trainingData[0]))
+    brain.add_node_layer(4, len(trainingData[0]))
     prediction = brain.make_predictions(trainingData)
+    print('One layer neural net output')
+    print(prediction)
+    brain.add_node_layer(3)  # no need to pass second arg if this is not the first node layer
+    prediction = brain.make_predictions(trainingData)
+    print('Here is the output after adding another layer and running the same data')
     print(prediction)
 
     print('Running diabetes data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_diabetes()
     diabetes_net = NeuralNet()
-    diabetes_net.add_node_layer(2, len(trainingData[0]))
+    diabetes_net.add_node_layer(6, len(trainingData[0]))
+    diabetes_net.add_node_layer(7)
+    diabetes_net.add_node_layer(3)
+    diabetes_net.add_node_layer(1)
     prediction = diabetes_net.make_predictions(trainingData)
+    print('This network has 3 hidden layers')
     print(prediction)
 
 
