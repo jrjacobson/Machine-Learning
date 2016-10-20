@@ -1,6 +1,7 @@
 import hardcoded
 import KNNClassifier
 import TreeClassifier
+import neuralNet
 import sys
 from sklearn import datasets
 from sklearn.utils import shuffle
@@ -46,6 +47,7 @@ def normalize(trainingData, testData):
     testData = std_scale.transform(testData)
     return trainingData, testData
 
+
 def main(argv):
     print("\nPonder 01: Running hardcoded classifier")
     hardcoded.main(argv)
@@ -53,6 +55,8 @@ def main(argv):
     KNNClassifier.main(argv)
     print("\nPonder 03: Tree Classifier")
     TreeClassifier.main(argv)
+    print("\nPonder 05: Neural Net Classifier")
+    neuralNet.main()
 
 # load data
 iris = datasets.load_iris()

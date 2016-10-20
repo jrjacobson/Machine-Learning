@@ -1,12 +1,11 @@
 import menu
-import sys
 import random
+import math
 
 
 class Neuron:
     """Neuron object for a neural network"""
-
-    bias = -1
+    bias = -1  # Bias node static across all instances of neuron
 
     def __init__(self, number_of_inputs):
         """Constructor for a new neuron requires the number of inputs not including the bias node"""
@@ -22,11 +21,7 @@ class Neuron:
         for item in range(len(input_list)):
             sum_excitement += (input_list[item] * self.weight[item])
         sum_excitement += (self.bias * self.weight[-1])  # Don't forget to add the bias
-        if sum_excitement >= 0:
-            is_excited = 1
-        else:
-            is_excited = 0
-        return is_excited
+        return 1/(1 + math.e**sum_excitement)
 
 
 class NeuralNet:
@@ -48,12 +43,14 @@ class NeuralNet:
     def make_predictions(self, data):
         """Makes prediction based on input data passed"""
         prediction = []
-        for row in range(len(data)):
-            excited_neurons = []
-            for node in range(len(self.node_layer[0])):  # Logic will need to be changed here to deal with multiple layers in the neural net
-                neuron = self.node_layer[0][node]
-                excited_neurons.append(neuron.excite_neuron(data[row]))
-            prediction.append(excited_neurons)
+        for layer in range(len(self.node_layer)):
+            for row in range(len(data)):
+                excited_neurons = []
+                for node in range(len(self.node_layer[layer])):  # Logic will need to be changed here to deal with multiple layers in the neural net
+                    neuron = self.node_layer[layer][node]
+                    excited_neurons.append(neuron.excite_neuron(data[row]))
+                prediction.append(excited_neurons)
+            data = prediction
         return prediction
 
 
@@ -79,7 +76,7 @@ def pre_process_iris():
     return trainingData, trainingTarget, testData, testTarget
 
 
-def main(args):
+def main():
     """Designed to show how the neuralNet class works"""
     print('Running iris data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_iris()
@@ -97,4 +94,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
