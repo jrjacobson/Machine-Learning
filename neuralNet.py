@@ -33,7 +33,8 @@ class NeuralNet:
 
     def add_node_layer(self, number_of_neurons, number_of_inputs=0):
         """Creates a layer of neuron nodes
-                :param number_of_inputs: The number of inputs that will be passed into the network
+                :param number_of_inputs: The number of inputs that will be passed into the network this will be
+                overridden if the input is coming from a hidden layer
                 :param number_of_neurons: The number of neurons there will be in the network"""
         if len(self.node_layer) != 0:
             number_of_inputs = len(self.node_layer[-1])
@@ -109,7 +110,6 @@ def main():
     predictions = brain.classify_predictions(predictions)
     percent = menu.test(trainingTarget, predictions)
     print("The prediction accuracy algorithm was %i%%" % percent)
-
 
     print('Running diabetes data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_diabetes()
