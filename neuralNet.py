@@ -58,6 +58,18 @@ class NeuralNet:
             prediction = []
         return prediction
 
+    def classify_predictions(self, predictions):
+        new_predictions = []
+        for row in range(len(predictions)):
+            predict = 0
+            high = 0
+            for col in range(len(predictions[row])):
+                if predictions[row][col] > high:
+                    high = predictions[row][col]
+                    predict = col
+                new_predictions.append(predict)
+        return new_predictions
+
 
 def pre_process_diabetes():
     """Pre processes the diabetes data and return pre processed data"""
@@ -87,13 +99,17 @@ def main():
     trainingData, trainingTarget, testData, testTarget = pre_process_iris()
     brain = NeuralNet()
     brain.add_node_layer(4, len(trainingData[0]))
-    prediction = brain.make_predictions(trainingData)
+    predictions = brain.make_predictions(trainingData)
     print('One layer neural net output')
-    print(prediction)
+    print(predictions)
     brain.add_node_layer(3)  # no need to pass second arg if this is not the first node layer
-    prediction = brain.make_predictions(trainingData)
+    predictions = brain.make_predictions(trainingData)
     print('Here is the output after adding another layer and running the same data')
-    print(prediction)
+    print(predictions)
+    predictions = brain.classify_predictions(predictions)
+    percent = menu.test(trainingTarget, predictions)
+    print("The prediction accuracy algorithm was %i%%" % percent)
+
 
     print('Running diabetes data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_diabetes()
@@ -101,10 +117,12 @@ def main():
     diabetes_net.add_node_layer(6, len(trainingData[0]))
     diabetes_net.add_node_layer(7)
     diabetes_net.add_node_layer(3)
-    diabetes_net.add_node_layer(1)
-    prediction = diabetes_net.make_predictions(trainingData)
+    diabetes_net.add_node_layer(2)
+    predictions = diabetes_net.make_predictions(trainingData)
     print('This network has 3 hidden layers')
-    print(prediction)
+    predictions = diabetes_net.classify_predictions(predictions)
+    percent = menu.test(trainingTarget, predictions)
+    print("The prediction accuracy algorithm was %i%%" % percent)
 
 
 if __name__ == '__main__':
