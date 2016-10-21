@@ -68,7 +68,7 @@ class NeuralNet:
                 if predictions[row][col] > high:
                     high = predictions[row][col]
                     predict = col
-                new_predictions.append(predict)
+            new_predictions.append(predict)
         return new_predictions
 
 
