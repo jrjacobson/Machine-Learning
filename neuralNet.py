@@ -10,6 +10,7 @@ class Neuron:
     def __init__(self, number_of_inputs):
         """Constructor for a new neuron requires the number of inputs not including the bias node"""
         self.weight = []  # list to contain all the weights of the inputs
+        self.error = 0.0
         for _ in range(0, number_of_inputs):
             random_weight = (random.random() * 2) - 1
             self.weight.append(random_weight)
@@ -21,7 +22,7 @@ class Neuron:
         for item in range(len(input_list)):
             sum_excitement += (input_list[item] * self.weight[item])
         sum_excitement += (self.bias * self.weight[-1])  # Don't forget to add the bias
-        return 1/(1 + math.e**sum_excitement)
+        return 1 / (1 + math.e ** sum_excitement)
 
 
 class NeuralNet:
@@ -30,6 +31,32 @@ class NeuralNet:
     def __init__(self):
         """Constructor"""
         self.node_layer = []
+        self.layer_output = []
+
+    def back_prop(self, target, predictions):
+        for epoch in range(100):
+            for row in range(len(target)):
+                col = -1
+                for _ in range(len(self.node_layer)):
+                    for neuron in range(len(self.node_layer[col])):
+                        if col == -1:
+                            # Calculate last node layer error
+                            output = 0
+                            if target[row] == predictions[row]:
+                                output = 1
+                            self.node_layer[col][neuron].error = self.layer_output[col][neuron] * (
+                                1 - self.layer_output[col][neuron]) * (self.layer_output[col][neuron] - output)
+
+                        else:
+                            # todo Calculate hidden neuron error
+                            self.node_layer[col][neuron].error = self.layer_output[col][neuron] * (
+                                1 - self.layer_output[col][neuron]) * (self.layer_output[col][neuron])
+
+                    col -= 1
+                    # calc e
+            for row in range(len(target)):
+                # todo update weights
+                w = 0
 
     def add_node_layer(self, number_of_neurons, number_of_inputs=0):
         """Creates a layer of neuron nodes
@@ -43,7 +70,7 @@ class NeuralNet:
             neuron_list.append(Neuron(number_of_inputs))
         self.node_layer.append(neuron_list)
 
-    def make_predictions(self, data):
+    def feed_forward(self, data):
         """Makes prediction based on input data passed"""
         if len(self.node_layer) != 0:
             for layer in range(len(self.node_layer)):
@@ -54,6 +81,7 @@ class NeuralNet:
                         neuron = self.node_layer[layer][node]
                         excited_neurons.append(neuron.excite_neuron(data[row]))
                     prediction.append(excited_neurons)
+                    self.layer_output.append(excited_neurons)
                 data = prediction
         else:
             prediction = []
@@ -99,18 +127,18 @@ def main():
     print('Running iris data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_iris()
     brain = NeuralNet()
-    brain.add_node_layer(4, len(testData[0]))
-    predictions = brain.make_predictions(testData)
+    brain.add_node_layer(4, len(trainingData[0]))
+    predictions = brain.feed_forward(trainingData)
     print('One layer neural net output')
     print(predictions)
     brain.add_node_layer(3)  # no need to pass second arg if this is not the first node layer
-    predictions = brain.make_predictions(testData)
+    predictions = brain.feed_forward(trainingData)
     print('Here is the output after adding another layer and running the same data')
     print(predictions)
     predictions = brain.classify_predictions(predictions)
-    percent = menu.test(testTarget, predictions)
-    print(predictions)
+    percent = menu.test(trainingTarget, predictions)
     print("The prediction accuracy algorithm was %i%%" % percent)
+    brain.back_prop(trainingTarget, predictions)
 
     print('Running diabetes data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_diabetes()
@@ -119,7 +147,7 @@ def main():
     diabetes_net.add_node_layer(7)
     diabetes_net.add_node_layer(3)
     diabetes_net.add_node_layer(2)
-    predictions = diabetes_net.make_predictions(testData)
+    predictions = diabetes_net.feed_forward(testData)
     print('This network has 3 hidden layers')
     predictions = diabetes_net.classify_predictions(predictions)
     percent = menu.test(testTarget, predictions)
