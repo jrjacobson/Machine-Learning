@@ -11,7 +11,6 @@ class Neuron:
         """Constructor for a new neuron requires the number of inputs not including the bias node"""
         self.weight = []  # list to contain all the weights of the inputs
         self.error = 0.0
-        self.output = 0.0
         for _ in range(0, number_of_inputs):
             random_weight = (random.random() * 2) - 1
             self.weight.append(random_weight)
@@ -23,8 +22,7 @@ class Neuron:
         for item in range(len(input_list)):
             sum_excitement += (input_list[item] * self.weight[item])
         sum_excitement += (self.bias * self.weight[-1])  # Don't forget to add the bias
-        self.output = 1 / (1 + math.e ** sum_excitement)
-        return self.output
+        return 1 / (1 + math.e ** sum_excitement)
 
 
 class NeuralNet:
@@ -34,56 +32,125 @@ class NeuralNet:
         """Constructor"""
         self.node_layer = []
 
-    def back_prop(self, data, target, predictions):
-        for epoch in range(100000):
-            for row in range(len(target)):
-                col = -1
+    def back_prop(self, data, target):
+        for epoch in range(500):
+
+            for row in range(len(data)):
+
+                prediction = []
+                for layer in range(len(self.node_layer)):
+                    excited_neurons = []
+                    for node in range(len(self.node_layer[layer])):
+                        neuron = self.node_layer[layer][node]
+                        excited_neurons.append(neuron.excite_neuron(data[row]))
+                    prediction.append(excited_neurons)
+
                 for _ in range(len(self.node_layer)):
+                    # Set all errors
+                    node_layer = -1
+                    for neuron_index in range(len(self.node_layer[node_layer])):
+                        # Setting errors for each node in the layer
+                        if node_layer == -1:
+                            # last layer
+                            prediction = self.classify_predictions(prediction[-1])
+                            # is the prediction right or wrong
+                            output = 0
+                            if target[row] == prediction[row]:
+                                output = 1
+
+                            self.node_layer[node_layer][neuron].error = prediction[node_layer][neuron] * (1 - prediction[node_layer][neuron]) * (prediction[node_layer][neuron] - output)
+
+                        else:
+                            # not the last layer
+                            sum_error = 0.0
+
+                            for next_layer_neuron in range(len(self.node_layer[node_layer + 1])):
+                                # this sums up the weight * error of all nodes in the layer to the right
+                                sum_error += (
+                                    self.node_layer[node_layer + 1][next_layer_neuron].error *
+                                    self.node_layer[node_layer + 1][next_layer_neuron].weight[neuron])
+
+                                # Calculate and set this nodes error
+                                self.node_layer[node_layer][neuron].error = prediction[node_layer][neuron] * (
+                                    1 - prediction[node_layer][neuron]) * sum_error
+                    node_layer -= 1
+
+                for current_layer in range(len(self.node_layer)):
+                    # update weights
+                    learning_rate = .1
+                    for neurons in range(len(self.node_layer[current_layer])):
+                        for weight in range(len(self.node_layer[current_layer][neurons].weight)):
+                            if current_layer == 0:
+                                if weight < (len(self.node_layer[current_layer][neurons].weight) - 1):
+                                    this_input = data[current_layer][weight]
+                                else:
+                                    this_input = self.node_layer[current_layer][neurons].weight[weight]
+                            else:
+                                if weight < (len(self.node_layer[current_layer][neurons].weight) - 1):
+                                    this_input = prediction[current_layer][weight]
+                                else:
+                                    this_input = self.node_layer[current_layer][neurons].weight[weight]
+
+                            old_weight = self.node_layer[current_layer][neurons].weight[weight]
+                            error = self.node_layer[current_layer][neurons].error
+                            new_weight = old_weight - learning_rate * error * this_input
+                            self.node_layer[current_layer][neurons].weight[weight] = new_weight
+                """
+                for _ in range(len(self.node_layer)):
+                    node_layer = -1
                     # set the error for every node
-                    for neuron in range(len(self.node_layer[col])):
-                        if col == -1:
+                    for neuron in range(len(self.node_layer[node_layer])):
+                        if node_layer == -1:
+                            predictions = []
+                            predict = 0
+                            high = 0
+                            for col in range(len(prediction[row])):
+                                if prediction[row][col] > high:
+                                    high = prediction[row][col]
+                                    predict = col
+                            predictions.append(predict)
                             # Calculate last layer node errors
                             output = 0
                             if target[row] == predictions[row]:
                                 output = 1
 
-                            self.node_layer[col][neuron].error = self.node_layer[col][neuron].output * (1 - self.node_layer[col][neuron].output) * (self.node_layer[col][neuron].output - output)
+                            self.node_layer[node_layer][neuron].error = prediction[node_layer][neuron] * (
+                                1 - prediction[node_layer][neuron]) * (prediction[node_layer][neuron] - output)
 
                         else:
                             # Calculate hidden layer node errors
                             sum_error = 0.0
 
-                            for next_layer_neuron in range(len(self.node_layer[col + 1])):
+                            for next_layer_neuron in range(len(self.node_layer[node_layer + 1])):
                                 # this sums up the weight * error of all nodes in the layer to the right
                                 sum_error += (
-                                    self.node_layer[col + 1][next_layer_neuron].error *
-                                    self.node_layer[col + 1][next_layer_neuron].weight[neuron])
+                                    self.node_layer[node_layer + 1][next_layer_neuron].error *
+                                    self.node_layer[node_layer + 1][next_layer_neuron].weight[neuron])
                             # Calculate and set this nodes error
-                            self.node_layer[col][neuron].error = self.node_layer[col][neuron].output * (1 - self.node_layer[col][neuron].output) * sum_error
-                    col -= 1
+                            self.node_layer[node_layer][neuron].error = prediction[node_layer][neuron] * (
+                                1 - prediction[node_layer][neuron]) * sum_error
+                    node_layer -= 1
 
-                col = -1
-                for _ in range(len(self.node_layer)):
+                for current_layer in range(len(self.node_layer)):
                     # update weights
                     learning_rate = .1
-                    for neuron in range(len(self.node_layer[col])):
-                        for weight in range(len(self.node_layer[col][neuron].weight)):
-                            if (col * -1) == len(self.node_layer):
-                                # do this if this is the first layer
-                                if weight != len(self.node_layer[col][neuron].weight):
-                                    this_input = data[row][weight].output
+                    for neurons in range(len(self.node_layer[current_layer])):
+                        for weight in range(len(self.node_layer[current_layer][neurons].weight)):
+                            if current_layer == 0:
+                                if weight < (len(self.node_layer[current_layer][neurons].weight) - 1):
+                                    this_input = data[current_layer][weight]
                                 else:
-                                    this_input = self.node_layer[col][neuron].bias
+                                    this_input = self.node_layer[current_layer][neurons].weight[weight]
                             else:
-                                if weight < len(self.node_layer[col][neuron].weight) - 1:
-                                    this_input = self.node_layer[col - 1][weight].output
+                                if weight < (len(self.node_layer[current_layer][neurons].weight) - 1):
+                                    this_input = prediction[current_layer][weight]
                                 else:
-                                    this_input = self.node_layer[col][neuron].bias
+                                    this_input = self.node_layer[current_layer][neurons].weight[weight]
 
-                            old_weight = self.node_layer[col][neuron].weight[weight]
-                            error = self.node_layer[col][neuron].error
+                            old_weight = self.node_layer[current_layer][neurons].weight[weight]
+                            error = self.node_layer[current_layer][neurons].error
                             new_weight = old_weight - learning_rate * error * this_input
-                            self.node_layer[col][neuron].weight[weight] = new_weight
+                            self.node_layer[current_layer][neurons].weight[weight] = new_weight"""
 
     def add_node_layer(self, number_of_neurons, number_of_inputs=0):
         """Creates a layer of neuron nodes
@@ -99,18 +166,15 @@ class NeuralNet:
 
     def feed_forward(self, data):
         """Makes prediction based on input data passed"""
-        if len(self.node_layer) != 0:
-            for layer in range(len(self.node_layer)):
-                prediction = []
-                for row in range(len(data)):
-                    excited_neurons = []
-                    for node in range(len(self.node_layer[layer])):
-                        neuron = self.node_layer[layer][node]
-                        excited_neurons.append(neuron.excite_neuron(data[row]))
-                    prediction.append(excited_neurons)
-                data = prediction
-        else:
+        for layer in range(len(self.node_layer)):
             prediction = []
+            for row in range(len(data)):
+                excited_neurons = []
+                for node in range(len(self.node_layer[layer])):
+                    neuron = self.node_layer[layer][node]
+                    excited_neurons.append(neuron.excite_neuron(data[row]))
+                prediction.append(excited_neurons)
+            data = prediction
         return prediction
 
     def classify_predictions(self, predictions):
@@ -164,20 +228,17 @@ def main():
     predictions = brain.classify_predictions(predictions)
     percent = menu.test(trainingTarget, predictions)
     print("The prediction accuracy before training was %i%%" % percent)
-    brain.back_prop(trainingData, trainingTarget, predictions)
 
+    brain.back_prop(trainingData, trainingTarget)
     predictions = brain.feed_forward(testData)
     predictions = brain.classify_predictions(predictions)
     percent = menu.test(testTarget, predictions)
     print("The prediction accuracy after training was %i%%" % percent)
 
-
-    print('Running diabetes data...')
+    """print('Running diabetes data...')
     trainingData, trainingTarget, testData, testTarget = pre_process_diabetes()
     diabetes_net = NeuralNet()
     diabetes_net.add_node_layer(6, len(testData[0]))
-    diabetes_net.add_node_layer(7)
-    diabetes_net.add_node_layer(3)
     diabetes_net.add_node_layer(2)
     predictions = diabetes_net.feed_forward(testData)
     print('This network has 3 hidden layers')
@@ -185,11 +246,12 @@ def main():
     percent = menu.test(testTarget, predictions)
     print("The prediction accuracy algorithm was %i%%" % percent)
 
-
+    diabetes_net.back_prop(testData, testTarget)
     predictions = diabetes_net.feed_forward(testData)
     predictions = diabetes_net.classify_predictions(predictions)
     percent = menu.test(testTarget, predictions)
     print("The prediction accuracy after training was %i%%" % percent)
+    """
 
 if __name__ == '__main__':
     main()
