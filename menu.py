@@ -31,7 +31,6 @@ def loadcsv(filename):
 
 # Check to see what percentage was correct
 def test(target, prediction):
-    print('Calculating the proficiency of the prediction made...')
     right = 0
     for x in range(len(target)):
         if target[x] == prediction[x]:
